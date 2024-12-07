@@ -38,8 +38,8 @@ class Localization(Node):
         #parameters needed to the EKF class:
         self.eval_gux = sample_velocity_motion_model
         _, self.eval_Gt, self.eval_Vt = velocity_mm_simpy()
-        self.std_lin_vel = 0.05
-        self.std_ang_vel = 0.02
+        self.std_lin_vel = 0.024
+        self.std_ang_vel = 0.015
         self.Mt = np.diag([self.std_lin_vel**2, self.std_ang_vel**2])
         self.ekf = RobotEKF(dim_x=3, #(x,y,theta)
                             dim_u=2, #(v,w=0)
@@ -71,8 +71,8 @@ class Localization(Node):
         #parameters needed for the update of the EKF
         self.eval_hx_landm = landmark_range_bearing_model
         _, self.eval_Ht_landm = landmark_sm_simpy()
-        self.std_range = 0.02
-        self.std_bearing = 0.02
+        self.std_range = 0.01
+        self.std_bearing = 0.01
         self.Q_landm = np.diag([self.std_range**2, self.std_bearing**2])
         self.sigma_z = np.array([self.std_range, self.std_bearing])
 
