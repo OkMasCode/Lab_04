@@ -167,7 +167,7 @@ def plot_trajectories_with_particles_and_estimate(
     #plt.plot(ground_truth_x, ground_truth_y, label='/ground_truth Trajectory', color='green', linewidth=1.5)
 
     # Plot landmarks
-    plt.scatter(landmarks_x, landmarks_y, label='Landmarks', color='gray', marker='o', s=250)
+    #plt.scatter(landmarks_x, landmarks_y, label='Landmarks', color='gray', marker='|', s=200)
 
     # Plot particles
     for i, (timestamp, particles) in enumerate(zip(particle_timestamps, particles_per_timestep)):
@@ -266,13 +266,12 @@ def compute_error(real_positions, deformed_positions):
     }
 
 # Main execution
-bag_path = "/home/francesco-masin/bag_files/pf_bag32_0"
+bag_path = "/home/francesco-masin/bag_files/realbag179"
 
 # New landmarks with IDs and coordinates
-landmarks_ids = [11, 12, 13, 21, 22, 23, 31, 32, 33]
-landmarks_x = [-1.1, -1.1, -1.1, 0.0, 0.0, 0.0, 1.1, 1.1, 1.1]
-landmarks_y = [-1.1, 0.0, 1.1, -1.1, 0.0, 1.1, -1.1, 0.0, 1.1]
-
+landmarks_ids = [0,1,2,3,4,5]
+landmarks_x = [1.80, -0.45, -0.2, 1.20, 1.33, -0.09]
+landmarks_y = [0.14, -0.11, 1.76, 1.18, -1.59, -1.64]
 
 # Extract data from bag file
 timestamps_real, real_positions = extract_odom_positions_ros2(bag_path, "/odom")
