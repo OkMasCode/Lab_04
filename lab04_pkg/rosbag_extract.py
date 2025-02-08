@@ -211,7 +211,7 @@ def plot_x_y_theta(timestamps_real, real_positions, timestamps_pf, pf_positions)
     fig, axs = plt.subplots(3, 1, figsize=(12, 10))
 
     # Plot X position over time
-    axs[0].plot(timestamps_pf, pf_x, label='/ekf/pose/pose/position/x', color='blue', linestyle='-', linewidth=1)
+    axs[0].plot(timestamps_pf, pf_x, label='/pf/pose/pose/position/x', color='blue', linestyle='-', linewidth=1)
     axs[0].plot(timestamps_real, real_x, label='/odom/pose/pose/position/x', color='red', linestyle='-', linewidth=1)
     #axs[0].plot(timestamps_ground_truth, ground_truth_x, label='/ground_truth/pose/pose/position/x', color='green', linestyle=':', linewidth=1)
     axs[0].grid(True, linestyle='--', alpha=0.6)
@@ -221,7 +221,7 @@ def plot_x_y_theta(timestamps_real, real_positions, timestamps_pf, pf_positions)
     axs[0].set_xlabel('Time (s)')
 
     # Plot Y position over time
-    axs[1].plot(timestamps_pf, pf_y, label='/ekf/pose/pose/position/y', color='blue', linestyle='-', linewidth=1)
+    axs[1].plot(timestamps_pf, pf_y, label='/pf/pose/pose/position/y', color='blue', linestyle='-', linewidth=1)
     axs[1].plot(timestamps_real, real_y, label='/odom/pose/pose/position/y', color='red', linestyle='-', linewidth=1)
     #axs[1].plot(timestamps_ground_truth, ground_truth_y, label='/ground_truth/pose/pose/position/y', color='green', linestyle=':', linewidth=1)
     axs[1].grid(True, linestyle='--', alpha=0.6)
@@ -231,7 +231,7 @@ def plot_x_y_theta(timestamps_real, real_positions, timestamps_pf, pf_positions)
     axs[1].set_xlabel('Time (s)')
 
     # Plot Theta (orientation) over time
-    axs[2].plot(timestamps_pf, pf_theta, label='/ekf/pose/orientation/yaw', color='blue', linestyle='-', linewidth=1)
+    axs[2].plot(timestamps_pf, pf_theta, label='/pf/pose/orientation/yaw', color='blue', linestyle='-', linewidth=1)
     axs[2].plot(timestamps_real, real_theta, label='/odom/pose/orientation/yaw', color='red', linestyle='-', linewidth=1)
     #axs[2].plot(timestamps_ground_truth, ground_truth_theta, label='/ground_truth/pose/orientation/yaw', color='green', linestyle=':', linewidth=1)
     axs[2].grid(True, linestyle='--', alpha=0.6)
@@ -266,7 +266,7 @@ def compute_error(real_positions, deformed_positions):
     }
 
 # Main execution
-bag_path = "/home/francesco-masin/bag_files/realbag179"
+bag_path = "/home/francesco-masin/bag_files/pf_bag32_0"
 
 # New landmarks with IDs and coordinates
 landmarks_ids = [0,1,2,3,4,5]

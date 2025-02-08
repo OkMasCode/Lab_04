@@ -53,6 +53,46 @@ def extract_odom_positions_ros2(bag_path, topic_name):
         
     return timestamps, positions
 
+def extract_path_ros2(bag_path, topic_name):
+    positions = []  # List to store x, y, and theta positions
+    
+    # Open the ROS 2 bag
+    storage_options = rosbag2_py.StorageOptions(uri=bag_path, storage_id='sqlite3')
+    converter_options = rosbag2_py.ConverterOptions(input_serialization_format='cdr', output_serialization_format='cdr')
+    reader = rosbag2_py.SequentialReader()
+    reader.open(storage_options, converter_options)
+
+    # Get all topics and types
+    topic_types = reader.get_all_topics_and_types()
+    topic_type_dict = {topic.name: topic.type for topic in topic_types}
+
+    # Check if the topic exists in the bag file
+    if topic_name not in topic_type_dict:
+        raise ValueError(f"Topic '{topic_name}' not found in the bag file.")
+
+    # Read messages
+    while reader.has_next():
+        (topic, data, t) = reader.read_next()
+        if topic == topic_name:
+            # Deserialize data using the Odometry message type
+            msg = deserialize_message(data, Odometry)
+            
+            # Extract position and orientation (quaternion)
+            x = msg.poses.pose.position.x
+            y = msg.poses.pose.position.y
+
+            # Append the extracted position and orientation along with timestamp
+            timestamp_sec = t / 1e9  # Convert from nanoseconds to seconds
+            positions.append((x, y))
+
+    if not positions:
+        print(f"No data extracted from topic {topic_name}.")
+    else:
+        print(f"Extracted {len(positions)} positions from topic {topic_name}.")
+        
+    return positions
+
+
 
 # Function to interpolate data to real timestamps
 def interpolate_data(timestamps_real, timestamps_source, source_positions):
@@ -96,28 +136,25 @@ def compute_error(real_positions, deformed_positions):
 
 
 # Function to plot the trajectories with landmark IDs
-def plot_trajectories(real_positions, ekf_positions, landmark_ids, landmarks_x, landmarks_y):
+def plot_trajectories(real_positions, path_positions, landmark_ids, landmarks_x, landmarks_y):
     real_x, real_y, _ = zip(*real_positions)
-    ekf_x, ekf_y, _ = zip(*ekf_positions)
+    path_x, path_y, _ = zip(*path_positions)
     #ground_truth_x, ground_truth_y, _ = zip(*ground_truth_positions)
 
     plt.figure(figsize=(10, 8))
 
     # Plot the real trajectory
-    plt.plot(real_x, real_y, label='/odom Trajectory', color='red', linestyle='-', linewidth=1)
+    plt.plot(real_x, real_y, label='/ground_truth', color='red', linestyle='-', linewidth=1)
 
     # Plot the EKF trajectory
-    plt.plot(ekf_x, ekf_y, label='/ekf Trajectory', color='blue', linestyle='--', linewidth=1)
-
-    # Plot the ground truth trajectory
-    #plt.plot(ground_truth_x, ground_truth_y, label='/ground_truth Trajectory', color='green', linestyle=':', linewidth=1)
+    plt.plot(path_x, path_y, label='/A* trajectory', color='blue', linestyle='-', linewidth=1)
 
     # Plot landmarks
-    plt.scatter(landmarks_x, landmarks_y, label='Landmarks', color='black', marker='x', s=50)
+    plt.scatter(landmarks_x, landmarks_y, label='Landmarks', color='gray', marker='o', s=250)
 
     # Annotate each landmark with its ID
     for i, (x, y, landmarks_id) in enumerate(zip(landmarks_x, landmarks_y, landmark_ids)):
-        plt.text(x+0.05, y+0.05, f'Landmark {str(landmarks_id)}', fontsize=8, color='red')
+        plt.text(x+0.05, y+0.05, f'Landmark {str(landmarks_id)}', fontsize=8, color='gray')
 
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.legend(loc='best')
@@ -129,9 +166,9 @@ def plot_trajectories(real_positions, ekf_positions, landmark_ids, landmarks_x, 
     plt.tight_layout()
     plt.show()
 
-
+"""
 # Function to plot x, y, and theta over time
-def plot_x_y_theta(timestamps_real, real_positions, timestamps_ekf, ekf_positions):
+def plot_x_y_theta(timestamps_real, real_positions, timestamps_path, path_positions):
     real_x, real_y, real_theta = zip(*real_positions)
     ekf_x, ekf_y, ekf_theta = zip(*ekf_positions)
     #ground_truth_x, ground_truth_y, ground_truth_theta = zip(*ground_truth_positions)
@@ -171,7 +208,7 @@ def plot_x_y_theta(timestamps_real, real_positions, timestamps_ekf, ekf_position
     plt.tight_layout()
     plt.show()
 
-
+"""
 # Main execution
 bag_path = "/home/francesco-masin/bag_files/final"
 
@@ -182,7 +219,7 @@ landmarks_y = [-1.1, 0.0, 1.1, -1.1, 0.0, 1.1, -1.1, 0.0, 1.1]
 
 # Extract data for /odom, /ekf, and /ground_truth
 timestamps_real, real_positions = extract_odom_positions_ros2(bag_path, "/odom")
-timestamps_ekf, ekf_positions = extract_odom_positions_ros2(bag_path, "/ekf")
+path_positions = extract_path_ros2(bag_path, "/global_path")
 #timestamps_ground_truth, ground_truth_positions = extract_odom_positions_ros2(bag_path, "/ground_truth")
 
 # Interpolate /ekf and /ground_truth to match /odom timestamps
@@ -204,5 +241,5 @@ if real_positions and ekf_positions:# and ground_truth_positions:
     """
     # Plot the trajectories and X, Y, Theta over time
     plot_trajectories(real_positions, interpolated_ekf_positions, landmark_ids, landmarks_x, landmarks_y)
-    plot_x_y_theta(timestamps_real, real_positions, timestamps_real, interpolated_ekf_positions)
+    #plot_x_y_theta(timestamps_real, real_positions, timestamps_real, interpolated_ekf_positions)
 
